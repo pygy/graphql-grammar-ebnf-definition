@@ -31,8 +31,8 @@ SourceCharacter ::=  #x0009 | #x000A | #x000D | [#x0020-#xFFFF] /* /[\u0009\u000
 
 
 
-/* Ignored Tokens Expression */
-Ignored        ::= UnicodeBOM | WhiteSpace | LineTerminator | Comment | Comma
+/* __ Tokens Expression */
+__             ::= UnicodeBOM | WhiteSpace | LineTerminator | Comment | Comma
 UnicodeBOM     ::= #xFEFF  /* Byte Order Mark (U+FEFF) */
 WhiteSpace     ::= #x0009 | #x0020 /* ASCII: \t | Space, Horizontal Tab (U+0009), Space (U+0020) */
 LineTerminator ::= #x000A | #x000D | #x000D#x000A   /* ASCII: \n | \r\n | \r, New Line (U+000A) | Carriage Return (U+000D) [Lookahead != New Line (U+000A)] | Carriage Return (U+000D)New Line (U+000A) */
@@ -47,7 +47,7 @@ Token                ::= Punctuator | Name | IntValue | FloatValue | StringValue
 Punctuator           ::= "!" | "$" | "(" | ")" | "..." | ":" | "=" | "@" | "[" | "]" | "{" | "|" | "}"
 Name                 ::= [_A-Za-z][_0-9A-Za-z]*
 IntValue             ::= IntegerPart 
-IntegerPart          ::= NegativeSign? Ignored "0" Ignored | NegativeSign? Ignored NonZeroDigit Ignored Digit* Ignored /* "[\+\-0-9]+" */
+IntegerPart          ::= NegativeSign? __ "0" __ | NegativeSign? __ NonZeroDigit __ Digit* __ /* "[\+\-0-9]+" */
 NegativeSign         ::= "-"
 Digit                ::= [0-9]
 NonZeroDigit         ::= Digit - "0"
@@ -65,7 +65,7 @@ BlockStringCharacter ::= SourceCharacter - '"""' | SourceCharacter - '\"""' | '\
 
 
 /* Document Expression */
-Document ::= Ignored Definition+ Ignored
+Document ::= __ Definition+ __
 
 
 /* Definition Expression */
@@ -74,34 +74,34 @@ ExecutableDefinition ::= OperationDefinition | FragmentDefinition
 
 
 /* OperationDefinition Expression */
-OperationDefinition ::= SelectionSet Ignored | Ignored OperationType Ignored Name? Ignored VariableDefinitions? Ignored Directives? SelectionSet Ignored
+OperationDefinition ::= SelectionSet __ | __ OperationType __ Name? __ VariableDefinitions? __ Directives? SelectionSet __
 OperationType       ::= "query" | "mutation" | "subscription" 
 
 
 /* SelectionSet Expression */
-SelectionSet ::= "{" Ignored Selection+ Ignored "}" Ignored
-Selection    ::= Field Ignored | FragmentSpread Ignored | InlineFragment Ignored
+SelectionSet ::= "{" __ Selection+ __ "}" __
+Selection    ::= Field __ | FragmentSpread __ | InlineFragment __
 
 
 /* Field Expression */
-Field ::= Alias? Ignored Name Ignored Arguments? Ignored Directives? Ignored SelectionSet? Ignored
+Field ::= Alias? __ Name __ Arguments? __ Directives? __ SelectionSet? __
 
 
 /* Alias Expression */
-Alias ::= Name Ignored ":" Ignored
+Alias ::= Name __ ":" __
 
 
 /* Arguments Expression */
-Arguments ::= "(" Ignored Argument+ Ignored ")" Ignored
-Argument  ::= Name Ignored ":" Ignored Value Ignored
+Arguments ::= "(" __ Argument+ __ ")" __
+Argument  ::= Name __ ":" __ Value __
 
 
 /* FragmentSpread Expression */
-FragmentSpread     ::= "..." Ignored FragmentName Ignored Directives? Ignored
-InlineFragment     ::= "..." Ignored TypeCondition? Ignored Directives? Ignored SelectionSet Ignored
-FragmentDefinition ::= "fragment" Ignored FragmentName Ignored TypeCondition Ignored Directives? Ignored SelectionSet Ignored
+FragmentSpread     ::= "..." __ FragmentName __ Directives? __
+InlineFragment     ::= "..." __ TypeCondition? __ Directives? __ SelectionSet __
+FragmentDefinition ::= "fragment" __ FragmentName __ TypeCondition __ Directives? __ SelectionSet __
 FragmentName       ::= Name - "on"
-TypeCondition      ::= "on" Ignored NamedType Ignored
+TypeCondition      ::= "on" __ NamedType __
 
 
 /* Value Expression */ 
@@ -111,14 +111,14 @@ NullValue        ::= "null"
 EnumValue        ::=  Name - "true" | Name - "false" | Name - "null" /* Name but not "true" or "false" or "null", "(?!(true|false|null))[_A-Za-z][_0-9A-Za-z]*" */
 ListValue        ::= "[" "]" | "[" Value+ "]"
 ObjectValue      ::= "{" "}" | "{" ObjectField+ "}"
-ObjectField      ::= Ignored Name Ignored ":" Ignored Value Ignored
+ObjectField      ::= __ Name __ ":" __ Value __
 
 
 /* VariableDefinitions Expression */
 VariableDefinitions ::= "(" VariableDefinition+ ")"
-VariableDefinition  ::= Variable Ignored ":" Ignored Type Ignored DefaultValue? Ignored
+VariableDefinition  ::= Variable __ ":" __ Type __ DefaultValue? __
 Variable            ::= "$" Name
-DefaultValue        ::= "=" Ignored Value
+DefaultValue        ::= "=" __ Value
 
 
 /* Type Expression */
@@ -130,7 +130,7 @@ NonNullType ::= NamedType "!" | ListType "!"
 
 /* Directives Expression */
 Directives ::= Directive+
-Directive  ::= "@" Ignored Name Ignored Arguments? Ignored
+Directive  ::= "@" __ Name __ Arguments? __
 
 
 /* TypeSystemDefinition Expression */
@@ -139,12 +139,12 @@ TypeSystemExtension  ::= SchemaExtension | TypeExtension
 
 
 /* SchemaDefinition Expression */
-SchemaDefinition ::= "schema" Ignored Directives? Ignored "{" Ignored OperationTypeDefinition+ Ignored "}" Ignored
-SchemaExtension  ::= "extend" Ignored "schema" Directives? Ignored "{" Ignored OperationTypeDefinition+ Ignored "}" Ignored | "extend" Ignored "schema" Directives Ignored
+SchemaDefinition ::= "schema" __ Directives? __ "{" __ OperationTypeDefinition+ __ "}" __
+SchemaExtension  ::= "extend" __ "schema" Directives? __ "{" __ OperationTypeDefinition+ __ "}" __ | "extend" __ "schema" Directives __
 
 
 /* OperationTypeDefinition Expression */
-OperationTypeDefinition ::= OperationType Ignored ":" Ignored NamedType Ignored
+OperationTypeDefinition ::= OperationType __ ":" __ NamedType __
 
 
 /* Description Expression */
@@ -155,44 +155,44 @@ Description ::= StringValue
 TypeDefinition            ::= ScalarTypeDefinition | ObjectTypeDefinition | InterfaceTypeDefinition | UnionTypeDefinition | EnumTypeDefinition | InputObjectTypeDefinition
 TypeExtension             ::= ScalarTypeExtension | ObjectTypeExtension | InterfaceTypeExtension | UnionTypeExtension | EnumTypeExtension | InputObjectTypeExtension
 
-ScalarTypeDefinition      ::= Description? Ignored "scalar" Ignored Name Ignored Directives? Ignored
-ScalarTypeExtension       ::= "extend" Ignored "scalar" Ignored Name Ignored Directives Ignored
+ScalarTypeDefinition      ::= Description? __ "scalar" __ Name __ Directives? __
+ScalarTypeExtension       ::= "extend" __ "scalar" __ Name __ Directives __
 
-ObjectTypeDefinition      ::= Description? Ignored "type" Ignored Name Ignored ImplementsInterfaces? Ignored Directives? Ignored FieldsDefinition? gnored
-ObjectTypeExtension       ::= "extend" Ignored "type" Ignored Name Ignored ImplementsInterfaces? Ignored Directives? Ignored FieldsDefinition Ignored | "extend" Ignored "type" Ignored Name Ignored ImplementsInterfaces? Ignored Directives Ignored | "extend" Ignored "type" Ignored Name Ignored ImplementsInterfaces Ignored
+ObjectTypeDefinition      ::= Description? __ "type" __ Name __ ImplementsInterfaces? __ Directives? __ FieldsDefinition? gnored
+ObjectTypeExtension       ::= "extend" __ "type" __ Name __ ImplementsInterfaces? __ Directives? __ FieldsDefinition __ | "extend" __ "type" __ Name __ ImplementsInterfaces? __ Directives __ | "extend" __ "type" __ Name __ ImplementsInterfaces __
 
-ImplementsInterfaces      ::= "implements" Ignored "&"? Ignored NamedType Ignored | ImplementsInterfaces Ignored "&" Ignored NamedType Ignored
+ImplementsInterfaces      ::= "implements" __ "&"? __ NamedType __ | ImplementsInterfaces __ "&" __ NamedType __
 
-InterfaceTypeDefinition   ::= Description? Ignored "interface" Ignored Name Ignored Directives? Ignored FieldsDefinition? Ignored
-InterfaceTypeExtension    ::= "extend" Ignored "interface" Ignored Name Ignored Directives? Ignored FieldsDefinition Ignored | "extend" Ignored "interface" Ignored Name Ignored Directives Ignored 
+InterfaceTypeDefinition   ::= Description? __ "interface" __ Name __ Directives? __ FieldsDefinition? __
+InterfaceTypeExtension    ::= "extend" __ "interface" __ Name __ Directives? __ FieldsDefinition __ | "extend" __ "interface" __ Name __ Directives __ 
 
-UnionTypeDefinition       ::= Description? Ignored "union" Ignored Name Ignored Directives? Ignored UnionMemberTypes? Ignored
-UnionMemberTypes          ::= "=" Ignored "|"? Ignored NamedType Ignored | UnionMemberTypes Ignored "|" Ignored NamedType Ignored
-UnionTypeExtension        ::= "extend" Ignored "union" Ignored Name Ignored Directives? Ignored UnionMemberTypes? Ignored | "extend" Ignored "union" Ignored Name Ignored Directives Ignored
+UnionTypeDefinition       ::= Description? __ "union" __ Name __ Directives? __ UnionMemberTypes? __
+UnionMemberTypes          ::= "=" __ "|"? __ NamedType __ | UnionMemberTypes __ "|" __ NamedType __
+UnionTypeExtension        ::= "extend" __ "union" __ Name __ Directives? __ UnionMemberTypes? __ | "extend" __ "union" __ Name __ Directives __
 
-EnumTypeDefinition        ::= Description? Ignored "enum" Ignored Name Ignored Directives? Ignored EnumValuesDefinition? Ignored
-EnumValuesDefinition      ::= "{" Ignored EnumValueDefinition+ Ignored "}" Ignored
-EnumValueDefinition       ::= Description? Ignored EnumValue Ignored Directives? Ignored
-EnumTypeExtension         ::= "extend" Ignored "enum" Ignored Name Ignored Directives? Ignored EnumValuesDefinition Ignored | "extend" Ignored "enum" Ignored Name Ignored Directives Ignored
+EnumTypeDefinition        ::= Description? __ "enum" __ Name __ Directives? __ EnumValuesDefinition? __
+EnumValuesDefinition      ::= "{" __ EnumValueDefinition+ __ "}" __
+EnumValueDefinition       ::= Description? __ EnumValue __ Directives? __
+EnumTypeExtension         ::= "extend" __ "enum" __ Name __ Directives? __ EnumValuesDefinition __ | "extend" __ "enum" __ Name __ Directives __
 
-InputObjectTypeDefinition ::= Description? Ignored "input" Ignored Name Ignored Directives? Ignored InputFieldsDefinition? Ignored
-InputFieldsDefinition     ::= "{" Ignored InputValueDefinition+ Ignored "}" Ignored
-InputObjectTypeExtension  ::= "extend" Ignored "input" Ignored Name Ignored Directives? Ignored InputFieldsDefinition Ignored | "extend" Ignored "input" Ignored Name Ignored Directives Ignored 
+InputObjectTypeDefinition ::= Description? __ "input" __ Name __ Directives? __ InputFieldsDefinition? __
+InputFieldsDefinition     ::= "{" __ InputValueDefinition+ __ "}" __
+InputObjectTypeExtension  ::= "extend" __ "input" __ Name __ Directives? __ InputFieldsDefinition __ | "extend" __ "input" __ Name __ Directives __ 
 
 
 /* DirectiveDefinition Expression */
-DirectiveDefinition         ::= Description? Ignored "directive" Ignored "@" Ignored Name Ignored ArgumentsDefinition? Ignored "on" Ignored DirectiveLocations Ignored
-DirectiveLocations          ::= "|"? Ignored DirectiveLocation Ignored | DirectiveLocations Ignored "|" Ignored DirectiveLocation Ignored
+DirectiveDefinition         ::= Description? __ "directive" __ "@" __ Name __ ArgumentsDefinition? __ "on" __ DirectiveLocations __
+DirectiveLocations          ::= "|"? __ DirectiveLocation __ | DirectiveLocations __ "|" __ DirectiveLocation __
 DirectiveLocation           ::= ExecutableDirectiveLocation | TypeSystemDirectiveLocation
 ExecutableDirectiveLocation ::= "QUERY" | "MUTATION" | "SUBSCRIPTION" | "FIELD" | "FRAGMENT_DEFINITION" | "FRAGMENT_SPREAD" | "INLINE_FRAGMENT" 
 TypeSystemDirectiveLocation ::= "SCHEMA" | "SCALAR" | "OBJECT" | "FIELD_DEFINITION" | "ARGUMENT_DEFINITION" | "INTERFACE" | "UNION" | "ENUM" | "ENUM_VALUE" | "INPUT_OBJECT" | "INPUT_FIELD_DEFINITION" 
 
 
 /* FieldsDefinition Expression */
-FieldsDefinition ::= "{" Ignored FieldDefinition+ Ignored "}"
-FieldDefinition  ::= Description? Ignored Name Ignored ArgumentsDefinition? Ignored ":" Ignored Type Ignored Directives? Ignored
+FieldsDefinition ::= "{" __ FieldDefinition+ __ "}"
+FieldDefinition  ::= Description? __ Name __ ArgumentsDefinition? __ ":" __ Type __ Directives? __
 
 
 /* ArgumentsDefinition Expression */
-ArgumentsDefinition  ::= "(" Ignored InputValueDefinition+ Ignored ")" Ignored
-InputValueDefinition ::= Description? Ignored Name Ignored ":" Ignored Type Ignored DefaultValue? Ignored Directives? Ignored
+ArgumentsDefinition  ::= "(" __ InputValueDefinition+ __ ")" __
+InputValueDefinition ::= Description? __ Name __ ":" __ Type __ DefaultValue? __ Directives? __
